@@ -8,7 +8,7 @@ namespace DbSession.Core
     {
         private readonly Dictionary<string, object> _values;
 
-        public ValueSet(IDataRecord reader)
+        internal ValueSet(IDataRecord reader)
         {
             _values = new Dictionary<string, object>();
 
@@ -18,17 +18,18 @@ namespace DbSession.Core
             }
         }
 
-        public ValueSet(Dictionary<string, object> values)
+        internal ValueSet(Dictionary<string, object> values)
         {
             _values = values;
         }
 
-        public TT Get<TT>(string name)
+        public T Get<T>(string name)
         {
-            return (TT)Convert.ChangeType(_values[name], typeof(TT));
+            return (T)Convert.ChangeType(_values[name], typeof(T));
         }
 
         public object this[string name] => _values[name];
+
         public IReadOnlyDictionary<string, object> Values => _values;
     }
 }
