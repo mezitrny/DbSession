@@ -1,4 +1,4 @@
-# DbSession
+# DbSession.Core
 ADO wrapper SQL database session
 
 ## DbSession
@@ -23,3 +23,5 @@ Fetched row data wrapper
 
 ## SqlParameter
 SQL parameter wrapper
+
+# DbSession.Sqlite
