@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>MeziTrny.DbSession.Sqlite</id>
+    <version>1.0.0</version>
+    <title>DbSession.SQlite</title>
+    <authors>Jaroslav Ruzicka</authors>
+    <owners>Jaroslav Ruzicka</owners>
+    <licenseUrl>https://github.com/mezitrny/DbSession/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/mezitrny/DbSession/tree/master/DbSession.Sqlite</projectUrl>
+    <iconUrl>https://png.icons8.com/ios/50/000000/database-filled.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Sqlite provider for DbSession.</description>
+    <releaseNotes>Initial package with first beta version.</releaseNotes>
+    <copyright>Copyright 2018</copyright>
+    <tags>ADO Database SQL Sqlite</tags>
+    <dependencies>
+        <dependency id="MeziTrny.DbSession" version="(,1.0.5]"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\..\DbSession\DbSession.Sqlite\bin\Release\DbSession.Sqlite.dll" target="lib\net40\" />
+  </files>
+</package>
