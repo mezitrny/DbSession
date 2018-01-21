@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Resources;
 using DbSession.Connections;
 using DbSession.Parameters;
 using DbSession.ValueSets;
@@ -19,7 +22,7 @@ namespace DbSession
         /// <param name="sql">sql command fetching rows</param>
         /// <param name="parameters">parameters for command</param>
         /// <returns>IEnumerable interface of IValueSet</returns>
-        public IEnumerable<IValueSet> Select(string sql, SqlParameterSet parameters = null)
+        public IEnumerable<IValueSet> Select(string sql, DbParameterSet parameters = null)
         {
             return Connection.Select(sql, parameters);
         }
@@ -29,9 +32,19 @@ namespace DbSession
         /// </summary>
         /// <param name="sql">SQL script</param>
         /// <param name="parameters">parameters for script</param>
-        public void Execute(string sql, SqlParameterSet parameters = null)
+        public void Execute(string sql, DbParameterSet parameters = null)
         {
             Connection.Execute(sql, parameters);
+        }
+
+        /// <summary>
+        /// Executes given SQL script with multiple parameter sets as a batch
+        /// </summary>
+        /// <param name="sql">SQL script</param>
+        /// <param name="parameterSets">parameters for script</param>
+        public void Execute(string sql, IEnumerable<DbParameterSet> parameterSets)
+        {
+            Connection.ExecuteBatch(sql, parameterSets);
         }
 
         /// <summary>
@@ -40,9 +53,20 @@ namespace DbSession
         /// </summary>
         /// <param name="sql">SQL script</param>
         /// <param name="parameters">parameters for script</param>
-        public void ExecuteOnTransaction(string sql, SqlParameterSet parameters = null)
+        public void ExecuteOnTransaction(string sql, DbParameterSet parameters = null)
         {
             Connection.ExecuteOnTransaction(sql, parameters);
+        }
+
+        /// <summary>
+        /// Executes given SQL script on transaction with multiple parameter sets as a batch. Transaction is created by first call 
+        /// and disposed by either Commit() or Rollback() command.
+        /// </summary>
+        /// <param name="sql">SQL script</param>
+        /// <param name="parameterSets">parameters for script</param>
+        public void ExecuteOnTransaction(string sql, IEnumerable<DbParameterSet> parameterSets)
+        {
+            Connection.ExecuteBatchOnTransaction(sql, parameterSets);
         }
 
         /// <summary>
@@ -51,7 +75,7 @@ namespace DbSession
         /// <param name="sql">SQL script</param>
         /// <param name="parameters">parameters for script</param>
         /// <returns>object</returns>
-        public object GetScalar(string sql, SqlParameterSet parameters = null)
+        public object GetScalar(string sql, DbParameterSet parameters = null)
         {
             return Connection.GetScalar(sql, parameters);
         }
@@ -62,7 +86,7 @@ namespace DbSession
         /// <param name="sql">SQL script</param>
         /// <param name="parameters">parameters for script</param>
         /// <returns>promitive type of generic type given to the method</returns>
-        public T GetScalar<T>(string sql, SqlParameterSet parameters = null)
+        public T GetScalar<T>(string sql, DbParameterSet parameters = null)
         {
             return (T)Convert.ChangeType(Connection.GetScalar(sql, parameters), typeof(T));
         }
@@ -94,6 +118,66 @@ namespace DbSession
         }
 
         /// <summary>
+        /// Returns content of embedded resource as a string.
+        /// </summary>
+        /// <param name="path">namespace of embedded resource (remember add folders' names)</param>
+        /// <returns>string</returns>
+        public string ReadEmbedded(string path)
+        {
+            using (var stm = Assembly.GetCallingAssembly().GetManifestResourceStream(path))
+            {
+                if (stm == null)
+                {
+                    throw new ArgumentException($"Resource script '{path}' couldn't be found.");
+                }
+
+                return new StreamReader(stm).ReadToEnd();
+            }
+        }
+
+        /// <summary>
+        /// Returns content of resource item as a string.
+        /// </summary>
+        /// <param name="path">namespace of resource (remember add folders' names)</param>
+        /// <param name="key">key in resource</param>
+        /// <returns>string</returns>
+        public string ReadResource(string path, string key)
+        {
+            try
+            {
+                var rm = new ResourceManager(path, Assembly.GetCallingAssembly());
+
+                var item = rm.GetString(key);
+
+                if (item == null)
+                {
+                    throw new ArgumentException($"Resource '{path}' file doesn't contain item '{key}'.");
+                }
+
+                return item;
+            }
+            catch (MissingManifestResourceException)
+            {
+                throw new ArgumentException($"Resource file '{path}' couldn't be found.");
+            }
+        }
+
+        /// <summary>
+        /// Returns content of file as a string.
+        /// </summary>
+        /// <param name="path">path to file</param>
+        /// <returns>string</returns>
+        public string ReadFile(string path)
+        {
+            if (!File.Exists(path))
+            {
+                throw new ArgumentException($"File '{path}' couldn't be found.");
+            }
+
+            return File.ReadAllText(path);
+        }
+
+        /// <summary>
         /// Connection string in format "Data Source=..."
         /// </summary>
         /// <param name="connectionString"></param>
@@ -110,5 +194,8 @@ namespace DbSession
         {
             CloseConnection();
         }
+
+
+
     }
 }

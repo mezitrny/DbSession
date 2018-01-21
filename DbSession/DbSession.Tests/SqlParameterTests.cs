@@ -9,7 +9,7 @@ namespace DbSession.Tests
         [Test]
         public void ShouldConstructInstance()
         {
-            var sut = new SqlParameter<int>("A", 2);
+            var sut = new DbParameter<int>("A", 2);
 
             Assert.That(sut.Value, Is.EqualTo(2));
             Assert.That(sut.Name, Is.EqualTo("A"));

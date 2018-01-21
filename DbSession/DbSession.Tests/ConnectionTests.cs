@@ -41,7 +41,7 @@ namespace DbSession.Tests
         {
             var sut = new Connection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;");
 
-            sut.ExecuteOnTransaction("INSERT INTO TestTable VALUES(3, @Value)", new SqlParameterSet{new SqlParameter<int>("Value", 7)});
+            sut.ExecuteOnTransaction("INSERT INTO TestTable VALUES(3, @Value)", new DbParameterSet{new DbParameter<int>("Value", 7)});
             sut.Commit();
 
             using (var connection = new SqlConnection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;"))
@@ -56,11 +56,38 @@ namespace DbSession.Tests
         }
 
         [Test]
+        public void ShouldExecuteOnTransactionForMultipleSets()
+        {
+            var sut = new Connection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;");
+
+            sut.ExecuteBatchOnTransaction("INSERT INTO TestTable VALUES(@Id, @Value)", new []
+            {
+                new DbParameterSet { new DbParameter<int>("Id", 77), new DbParameter<int>("Value", 77) },
+                new DbParameterSet { new DbParameter<int>("Id", 78), new DbParameter<int>("Value", 78) }
+            });
+            sut.Commit();
+
+            using (var connection = new SqlConnection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT TestValue FROM TestTable WHERE Id = 77";
+                connection.Open();
+                var result = int.Parse(command.ExecuteScalar().ToString());
+
+                Assert.That(result, Is.EqualTo(77));
+
+                command.CommandText = "SELECT TestValue FROM TestTable WHERE Id = 78";
+                result = int.Parse(command.ExecuteScalar().ToString());
+                Assert.That(result, Is.EqualTo(78));
+            }
+        }
+
+        [Test]
         public void ShouldRollbackTransaction()
         {
             var sut = new Connection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;");
 
-            sut.ExecuteOnTransaction("INSERT INTO TestTable VALUES(4, @Value)", new SqlParameterSet { new SqlParameter<int>("Value", 7) });
+            sut.ExecuteOnTransaction("INSERT INTO TestTable VALUES(4, @Value)", new DbParameterSet { new DbParameter<int>("Value", 7) });
             sut.RollBack();
 
             using (var connection = new SqlConnection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;"))
@@ -78,9 +105,36 @@ namespace DbSession.Tests
         public void ShouldSelect()
         {
             var sut = new Connection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;");
-            sut.Execute("SELECT * FROM TestTable WHERE Id IN (@Id1, @Id2)", new SqlParameterSet { new SqlParameter<int>("Id1", 1), new SqlParameter<int>("Id2", 2) });
+            sut.Execute("SELECT * FROM TestTable WHERE Id IN (@Id1, @Id2)", new DbParameterSet { new DbParameter<int>("Id1", 1), new DbParameter<int>("Id2", 2) });
 
 
+        }
+
+        [Test]
+        public void ShouldExecuteBatch()
+        {
+            var sut = new Connection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;");
+
+            sut.ExecuteBatch("INSERT INTO TestTable VALUES(@Id, @Value)", new []
+            {
+                new DbParameterSet { new DbParameter<int>("Id", 79), new DbParameter<int>("Value", 79) } ,
+                new DbParameterSet { new DbParameter<int>("Id", 80), new DbParameter<int>("Value", 80) }
+            });
+
+            using (var connection = new SqlConnection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT TestValue FROM TestTable WHERE Id = 79";
+                connection.Open();
+                var result = int.Parse(command.ExecuteScalar().ToString());
+
+                Assert.That(result, Is.EqualTo(79));
+
+                command.CommandText = "SELECT TestValue FROM TestTable WHERE Id = 80";
+                result = int.Parse(command.ExecuteScalar().ToString());
+
+                Assert.That(result, Is.EqualTo(80));
+            }
         }
 
         [Test]
@@ -88,7 +142,7 @@ namespace DbSession.Tests
         {
             var sut = new Connection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;");
 
-            sut.Execute("INSERT INTO TestTable VALUES(5, @Value)", new SqlParameterSet { new SqlParameter<int>("Value", 7) });
+            sut.Execute("INSERT INTO TestTable VALUES(5, @Value)", new DbParameterSet { new DbParameter<int>("Value", 7) });
 
             using (var connection = new SqlConnection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;"))
             {

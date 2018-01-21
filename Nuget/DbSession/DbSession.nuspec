@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>MeziTrny.DbSession.Core</id>
-    <version>1.0.5</version>
+    <version>1.2.0</version>
     <title>DbSession</title>
     <authors>Jaroslav Ruzicka</authors>
     <owners>Jaroslav Ruzicka</owners>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Data.SQLite;
 using DbSession.Connections;
 using DbSession.Parameters;
@@ -20,7 +21,43 @@ namespace DbSession.Sqlite
             _connection = new SQLiteConnection(connectionString);
         }
 
-        public void ExecuteOnTransaction(string sql, SqlParameterSet parameters = null)
+        public void ExecuteBatchOnTransaction(string sql, IEnumerable<DbParameterSet> parameterSets)
+        {
+            if (parameterSets == null)
+            {
+                return;
+            }
+
+            lock (_lock)
+            {
+                if (_transaction == null)
+                {
+                    EnsureOpen();
+                    _transaction = _connection.BeginTransaction();
+                }
+            }
+
+            var enumerator = parameterSets.GetEnumerator();
+
+            if (!enumerator.MoveNext())
+            {
+                return;
+            }
+
+            EnsureOpen();
+
+            var command = PrepareCommand(_connection, sql, enumerator.Current, _transaction);
+            command.ExecuteNonQuery();
+
+            while (enumerator.MoveNext())
+            {
+                ReuseCommand(command, enumerator.Current).ExecuteNonQuery();
+            }
+
+            enumerator.Dispose();
+        }
+
+        public void ExecuteOnTransaction(string sql, DbParameterSet parameters = null)
         {
             lock (_lock)
             {
@@ -35,9 +72,37 @@ namespace DbSession.Sqlite
                     _transaction.Connection.Open();
                 }
 
-                PrepareCommand(_transaction.Connection, sql, parameters)
+                PrepareCommand(_transaction.Connection, sql, parameters, _transaction)
                     .ExecuteNonQuery();
             }
+        }
+
+        public void ExecuteBatch(string sql, IEnumerable<DbParameterSet> parameterSets)
+        {
+            if (parameterSets == null)
+            {
+                return;
+            }
+
+            var enumerator = parameterSets.GetEnumerator();
+
+            if (!enumerator.MoveNext())
+            {
+                return;
+            }
+
+            EnsureOpen();
+            var transaction = _connection.BeginTransaction();
+            var command = PrepareCommand(_connection, sql, enumerator.Current, transaction);
+            command.ExecuteNonQuery();
+
+            while (enumerator.MoveNext())
+            {
+                ReuseCommand(command, enumerator.Current).ExecuteNonQuery();
+            }
+
+            transaction.Commit();
+            enumerator.Dispose();
         }
 
         public void Commit()
@@ -60,7 +125,7 @@ namespace DbSession.Sqlite
             }
         }
 
-        public IEnumerable<ValueSet> Select(string sql, SqlParameterSet parameters = null)
+        public IEnumerable<ValueSet> Select(string sql, DbParameterSet parameters = null)
         {
             EnsureOpen();
             var reader = PrepareCommand(_connection, sql, parameters).ExecuteReader();
@@ -70,14 +135,14 @@ namespace DbSession.Sqlite
             }
         }
 
-        public object GetScalar(string sql, SqlParameterSet parameters = null)
+        public object GetScalar(string sql, DbParameterSet parameters = null)
         {
             EnsureOpen();
             return PrepareCommand(_connection, sql, parameters)
                 .ExecuteScalar();
         }
 
-        public void Execute(string sql, SqlParameterSet parameters = null)
+        public void Execute(string sql, DbParameterSet parameters = null)
         {
             EnsureOpen();
             PrepareCommand(_connection, sql, parameters)
@@ -116,17 +181,25 @@ namespace DbSession.Sqlite
             }
         }
 
-        private static SQLiteCommand PrepareCommand(SQLiteConnection connection, string sql, SqlParameterSet parameters)
+        private static SQLiteCommand PrepareCommand(SQLiteConnection connection, string sql, DbParameterSet parameters, SQLiteTransaction transaction = null)
         {
             var command = connection.CreateCommand();
             command.CommandType = CommandType.Text;
+            if (transaction != null)
+            {
+                command.Transaction = transaction;
+            }
             command.CommandText = sql;
 
             if (parameters != null)
             {
                 foreach (var parameter in parameters)
                 {
-                    command.Parameters.Add(new SQLiteParameter(parameter.Name, Types[parameter.Type]){Value = parameter.Value});
+                    command.Parameters.Add(
+                        new SQLiteParameter(parameter.Name, Types[parameter.Type])
+                        {
+                            Value = parameter.Value
+                        });
                 }
             }
 
@@ -152,5 +225,20 @@ namespace DbSession.Sqlite
             {typeof(long?), DbType.Int64 },
             {typeof(object), DbType.Object }
         };
+
+        private static SQLiteCommand ReuseCommand(SQLiteCommand command, DbParameterSet parameters)
+        {
+            if (parameters == null)
+            {
+                return command;
+            }
+
+            foreach (var parameter in parameters)
+            {
+                command.Parameters[parameter.Name].Value = parameter.Value;
+            }
+
+            return command;
+        }
     }
 }

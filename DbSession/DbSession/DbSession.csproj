@@ -42,11 +42,11 @@
     <Compile Include="Connections\IConnection.cs" />
     <Compile Include="Connections\IConnectionFactory.cs" />
     <Compile Include="ISession.cs" />
-    <Compile Include="Parameters\ISqlParameter.cs" />
+    <Compile Include="Parameters\IDbParameter.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="ValueSets\IValueSet.cs" />
-    <Compile Include="Parameters\SqlParameter.cs" />
-    <Compile Include="Parameters\SqlParameterSet.cs" />
+    <Compile Include="Parameters\DbParameter.cs" />
+    <Compile Include="Parameters\DbParameterSet.cs" />
     <Compile Include="ValueSets\ValueSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

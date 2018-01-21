@@ -27,7 +27,7 @@ namespace DbSession.Sqlite.Tests
         {
             var sut = new SqliteConnection("Data Source=TestDatabase.sqlite");
 
-            sut.ExecuteOnTransaction("INSERT INTO TestTable VALUES(3, @Value)", new SqlParameterSet { new SqlParameter<int>("Value", 7) });
+            sut.ExecuteOnTransaction("INSERT INTO TestTable VALUES(3, @Value)", new DbParameterSet { new DbParameter<int>("Value", 7) });
             sut.Commit();
 
             using (var connection = new SQLiteConnection("Data Source=TestDatabase.sqlite"))
@@ -46,7 +46,7 @@ namespace DbSession.Sqlite.Tests
         {
             var sut = new SqliteConnection("Data Source=TestDatabase.sqlite");
 
-            sut.ExecuteOnTransaction("INSERT INTO TestTable VALUES(4, @Value)", new SqlParameterSet { new SqlParameter<int>("Value", 7) });
+            sut.ExecuteOnTransaction("INSERT INTO TestTable VALUES(4, @Value)", new DbParameterSet { new DbParameter<int>("Value", 7) });
             sut.RollBack();
 
             using (var connection = new SQLiteConnection("Data Source=TestDatabase.sqlite"))
@@ -64,7 +64,7 @@ namespace DbSession.Sqlite.Tests
         public void ShouldSelect()
         {
             var sut = new SqliteConnection("Data Source=TestDatabase.sqlite");
-            sut.Execute("SELECT * FROM TestTable WHERE Id IN (@Id1, @Id2)", new SqlParameterSet { new SqlParameter<int>("Id1", 1), new SqlParameter<int>("Id2", 2) });
+            sut.Execute("SELECT * FROM TestTable WHERE Id IN (@Id1, @Id2)", new DbParameterSet { new DbParameter<int>("Id1", 1), new DbParameter<int>("Id2", 2) });
 
 
         }
@@ -74,7 +74,7 @@ namespace DbSession.Sqlite.Tests
         {
             var sut = new SqliteConnection("Data Source=TestDatabase.sqlite");
 
-            sut.Execute("INSERT INTO TestTable VALUES(5, @Value)", new SqlParameterSet { new SqlParameter<int>("Value", 7) });
+            sut.Execute("INSERT INTO TestTable VALUES(5, @Value)", new DbParameterSet { new DbParameter<int>("Value", 7) });
 
             using (var connection = new SQLiteConnection("Data Source=TestDatabase.sqlite"))
             {
@@ -84,6 +84,60 @@ namespace DbSession.Sqlite.Tests
                 var result = int.Parse(command.ExecuteScalar().ToString());
 
                 Assert.That(result, Is.EqualTo(7));
+            }
+        }
+
+        [Test]
+        public void ShouldExecuteOnTransactionForMultipleSets()
+        {
+            var sut = new SqliteConnection("Data Source=TestDatabase.sqlite");
+
+            sut.ExecuteBatchOnTransaction("INSERT INTO TestTable VALUES(@Id, @Value)", new[]
+            {
+                new DbParameterSet { new DbParameter<int>("Id", 77), new DbParameter<int>("Value", 77) },
+                new DbParameterSet { new DbParameter<int>("Id", 78), new DbParameter<int>("Value", 78) }
+            });
+            sut.Commit();
+
+            using (var connection = new SQLiteConnection("Data Source=TestDatabase.sqlite"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT TestValue FROM TestTable WHERE Id = 77";
+                connection.Open();
+                var result = int.Parse(command.ExecuteScalar().ToString());
+
+                Assert.That(result, Is.EqualTo(77));
+
+                command.CommandText = "SELECT TestValue FROM TestTable WHERE Id = 78";
+                result = int.Parse(command.ExecuteScalar().ToString());
+                Assert.That(result, Is.EqualTo(78));
+            }
+        }
+
+        [Test]
+        public void ShouldExecuteBatch()
+        {
+            var sut = new SqliteConnection("Data Source=TestDatabase.sqlite");
+
+            sut.ExecuteBatch("INSERT INTO TestTable VALUES(@Id, @Value)", new[]
+            {
+                new DbParameterSet { new DbParameter<int>("Id", 79), new DbParameter<int>("Value", 79) } ,
+                new DbParameterSet { new DbParameter<int>("Id", 80), new DbParameter<int>("Value", 80) }
+            });
+
+            using (var connection = new SQLiteConnection("Data Source=TestDatabase.sqlite"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT TestValue FROM TestTable WHERE Id = 79";
+                connection.Open();
+                var result = int.Parse(command.ExecuteScalar().ToString());
+
+                Assert.That(result, Is.EqualTo(79));
+
+                command.CommandText = "SELECT TestValue FROM TestTable WHERE Id = 80";
+                result = int.Parse(command.ExecuteScalar().ToString());
+
+                Assert.That(result, Is.EqualTo(80));
             }
         }
 

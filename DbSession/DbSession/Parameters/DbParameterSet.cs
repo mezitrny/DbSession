@@ -2,6 +2,6 @@
 
 namespace DbSession.Parameters
 {
-    public class SqlParameterSet : HashSet<ISqlParameter>
+    public class DbParameterSet : HashSet<IDbParameter>
     { }
 }

@@ -63,6 +63,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SessionTests.cs" />
     <Compile Include="SqlParameterTests.cs" />
+    <Compile Include="Sql\TestResource.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TestResource.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Sql\TestScript.gen.cs">
+      <DependentUpon>TestScript.sql</DependentUpon>
+    </Compile>
+    <Compile Include="Sql\TestScriptResults.cs">
+      <DependentUpon>TestScript.sql</DependentUpon>
+    </Compile>
     <Compile Include="ValueSetTests.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -73,6 +84,18 @@
       <Project>{ef2b88ac-baf1-498e-93a9-b899a45f93f3}</Project>
       <Name>DbSession</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sql\TestResource.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>TestResource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sql\TestScript.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Sql\TestFile.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

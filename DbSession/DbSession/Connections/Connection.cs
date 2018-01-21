@@ -19,7 +19,7 @@ namespace DbSession.Connections
             _connection = new SqlConnection(connectionString);
         }
 
-        public void ExecuteOnTransaction(string sql, SqlParameterSet parameters = null)
+        public void ExecuteOnTransaction(string sql, DbParameterSet parameters = null)
         {
             lock (_lock)
             {
@@ -34,9 +34,45 @@ namespace DbSession.Connections
                     _transaction.Connection.Open();
                 }
 
-                PrepareCommand(_transaction.Connection, sql, parameters, true)
+                PrepareCommand(_transaction.Connection, sql, parameters, _transaction)
                     .ExecuteNonQuery();
             }
+        }
+
+        public void ExecuteBatchOnTransaction(string sql, IEnumerable<DbParameterSet> parameterSets)
+        {
+            if (parameterSets == null)
+            {
+                return;
+            }
+
+            lock (_lock)
+            {
+                if (_transaction == null)
+                {
+                    EnsureOpen();
+                    _transaction = _connection.BeginTransaction();
+                }
+            }
+
+            var enumerator = parameterSets.GetEnumerator();
+
+            if (!enumerator.MoveNext())
+            {
+                return;
+            }
+
+            EnsureOpen();
+
+            var command = PrepareCommand(_connection, sql, enumerator.Current, _transaction);
+            command.ExecuteNonQuery();
+
+            while (enumerator.MoveNext())
+            {
+                ReuseCommand(command, enumerator.Current).ExecuteNonQuery();
+            }
+
+            enumerator.Dispose();
         }
 
         public void Commit()
@@ -59,28 +95,56 @@ namespace DbSession.Connections
             }
         }
 
-        public IEnumerable<ValueSet> Select(string sql, SqlParameterSet parameters = null)
+        public IEnumerable<ValueSet> Select(string sql, DbParameterSet parameters = null)
         {
             EnsureOpen();
-            var reader = PrepareCommand(_connection, sql, parameters, false).ExecuteReader();
+            var reader = PrepareCommand(_connection, sql, parameters).ExecuteReader();
             while (reader.Read())
             {
                 yield return new ValueSet(reader);
             }
         }
 
-        public object GetScalar(string sql, SqlParameterSet parameters = null)
+        public object GetScalar(string sql, DbParameterSet parameters = null)
         {
             EnsureOpen();
-            return PrepareCommand(_connection, sql, parameters, false)
+            return PrepareCommand(_connection, sql, parameters)
                 .ExecuteScalar();
         }
 
-        public void Execute(string sql, SqlParameterSet parameters = null)
+        public void Execute(string sql, DbParameterSet parameters = null)
         {
             EnsureOpen();
-            PrepareCommand(_connection, sql, parameters, false)
+            PrepareCommand(_connection, sql, parameters)
                 .ExecuteNonQuery();
+        }
+
+        public void ExecuteBatch(string sql, IEnumerable<DbParameterSet> parameterSets)
+        {
+            if (parameterSets == null)
+            {
+                return;
+            }
+
+            var enumerator = parameterSets.GetEnumerator();
+            
+            if (!enumerator.MoveNext())
+            {
+                return;
+            }
+
+            EnsureOpen();
+            var transaction = _connection.BeginTransaction();
+            var command = PrepareCommand(_connection, sql, enumerator.Current, transaction);
+            command.ExecuteNonQuery();
+
+            while (enumerator.MoveNext())
+            {
+                ReuseCommand(command, enumerator.Current).ExecuteNonQuery();
+            }
+
+            transaction.Commit();
+            enumerator.Dispose();
         }
 
         public void Dispose()
@@ -115,13 +179,28 @@ namespace DbSession.Connections
             }
         }
 
-        private SqlCommand PrepareCommand(SqlConnection connection, string sql, SqlParameterSet parameters, bool transaction)
+        private static SqlCommand ReuseCommand(SqlCommand command, DbParameterSet parameters)
+        {
+            if (parameters == null)
+            {
+                return command;
+            }
+
+            foreach (var parameter in parameters)
+            {
+                command.Parameters[parameter.Name].Value = parameter.Value;
+            }
+
+            return command;
+        }
+
+        private static SqlCommand PrepareCommand(SqlConnection connection, string sql, DbParameterSet parameters, SqlTransaction transaction = null)
         {
             var command = connection.CreateCommand();
             command.CommandType = CommandType.Text;
-            if (transaction)
+            if (transaction != null)
             {
-                command.Transaction = _transaction;
+                command.Transaction = transaction;
             }
             command.CommandText = sql;
 
