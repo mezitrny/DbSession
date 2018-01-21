@@ -27,7 +27,7 @@ namespace DbSession
         /// </summary>
         /// <param name="sql">SQL script</param>
         /// <param name="parameterSets">parameters for script</param>
-        void Execute(string sql, IEnumerable<DbParameterSet> parameterSets);
+        void ExecuteBatch(string sql, IEnumerable<DbParameterSet> parameterSets);
 
         /// <summary>
         /// Executes given SQL script on transaction. Transaction is created by first call 
@@ -43,7 +43,7 @@ namespace DbSession
         /// </summary>
         /// <param name="sql">SQL script</param>
         /// <param name="parameterSets">parameters for script</param>
-        void ExecuteOnTransaction(string sql, IEnumerable<DbParameterSet> parameterSets);
+        void ExecuteBatchOnTransaction(string sql, IEnumerable<DbParameterSet> parameterSets);
 
         /// <summary>
         /// Returns scalar value fetched by given SQL script

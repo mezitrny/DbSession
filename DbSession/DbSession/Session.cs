@@ -42,7 +42,7 @@ namespace DbSession
         /// </summary>
         /// <param name="sql">SQL script</param>
         /// <param name="parameterSets">parameters for script</param>
-        public void Execute(string sql, IEnumerable<DbParameterSet> parameterSets)
+        public void ExecuteBatch(string sql, IEnumerable<DbParameterSet> parameterSets)
         {
             Connection.ExecuteBatch(sql, parameterSets);
         }
@@ -64,7 +64,7 @@ namespace DbSession
         /// </summary>
         /// <param name="sql">SQL script</param>
         /// <param name="parameterSets">parameters for script</param>
-        public void ExecuteOnTransaction(string sql, IEnumerable<DbParameterSet> parameterSets)
+        public void ExecuteBatchOnTransaction(string sql, IEnumerable<DbParameterSet> parameterSets)
         {
             Connection.ExecuteBatchOnTransaction(sql, parameterSets);
         }
