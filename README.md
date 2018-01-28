@@ -1,4 +1,4 @@
-# DbSession.Core # [![NuGet](https://img.shields.io/nuget/v/MeziTrny.DbSession.Core.svg)](https://www.nuget.org/packages/MeziTrny.DbSession.Core/)
+# DbSession.Core [![NuGet](https://img.shields.io/nuget/v/MeziTrny.DbSession.Core.svg)](https://www.nuget.org/packages/MeziTrny.DbSession.Core/)
 
 ADO wrapper SQL database session
 
