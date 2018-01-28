@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Resources;
 using DbSession.Connections;
@@ -24,7 +25,7 @@ namespace DbSession
         /// <returns>IEnumerable interface of IValueSet</returns>
         public IEnumerable<IValueSet> Select(string sql, DbParameterSet parameters = null)
         {
-            return Connection.Select(sql, parameters);
+            return Connection.Select(sql, parameters).ToList();
         }
 
         /// <summary>

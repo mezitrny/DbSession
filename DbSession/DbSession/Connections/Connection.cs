@@ -103,6 +103,8 @@ namespace DbSession.Connections
             {
                 yield return new ValueSet(reader);
             }
+            reader.Close();
+            reader.Dispose();
         }
 
         public object GetScalar(string sql, DbParameterSet parameters = null)
