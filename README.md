@@ -20,10 +20,13 @@ Facade class publishing all the interesting methods. Its' constructed with conne
 ### DbSession.CloseConnection
 
 ## IValueSet
-Fetched row data wrapper
+Fetched row data wrapper used to get rid of DataReader.
 
 ## SqlParameter
-SQL parameter wrapper
+SQL parameter wrapper used to isolate concrete provider classes. It expects name, C# type and value
 
-# DbSession.Sqlite
-[![NuGet](https://img.shields.io/nuget/v/MeziTrny.DbSession.Sqlite.svg)](https://www.nuget.org/packages/MeziTrny.DbSession.Sqlite/)
+<code>
+var parameter = new SqlParameter("Id", typeof(int), 5)
+</code>
+
+# DbSession.Sqlite [![NuGet](https://img.shields.io/nuget/v/MeziTrny.DbSession.Sqlite.svg)](https://www.nuget.org/packages/MeziTrny.DbSession.Sqlite/)
