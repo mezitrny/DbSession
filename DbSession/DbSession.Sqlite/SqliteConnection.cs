@@ -124,7 +124,7 @@ namespace DbSession.Sqlite
             }
         }
 
-        public IEnumerable<ValueSet> Select(string sql, DbParameterSet parameters = null)
+        public IEnumerable<IValueSet> Select(string sql, DbParameterSet parameters = null)
         {
             EnsureOpen();
             var reader = PrepareCommand(_connection, sql, parameters).ExecuteReader();

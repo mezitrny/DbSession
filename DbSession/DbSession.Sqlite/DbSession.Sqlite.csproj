@@ -33,7 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DbSession, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MeziTrny.DbSession.Core.1.2.0\lib\net40\DbSession.dll</HintPath>
+      <HintPath>..\packages\MeziTrny.DbSession.Core.1.2.2\lib\net40\DbSession.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
