@@ -1,4 +1,5 @@
 ﻿using System.Data.SQLite;
+using System.Linq;
 using DbSession.Parameters;
 using NUnit.Framework;
 
@@ -64,9 +65,15 @@ namespace DbSession.Sqlite.Tests
         public void ShouldSelect()
         {
             var sut = new SqliteConnection("Data Source=TestDatabase.sqlite");
-            sut.Execute("SELECT * FROM TestTable WHERE Id IN (@Id1, @Id2)", new DbParameterSet { new DbParameter<int>("Id1", 1), new DbParameter<int>("Id2", 2) });
+            var result = sut.Select(
+                "SELECT * FROM TestTable WHERE Id IN (@Id1, @Id2)",
+                new DbParameterSet { new DbParameter<int>("Id1", 1), new DbParameter<int>("Id2", 2) }).ToList();
 
-
+            Assert.That(result.Count, Is.EqualTo(2));
+            Assert.That(result[0]["Id"], Is.EqualTo(1));
+            Assert.That(result[0]["TestValue"], Is.EqualTo(5));
+            Assert.That(result[1]["Id"], Is.EqualTo(2));
+            Assert.That(result[1]["TestValue"], Is.EqualTo(6));
         }
 
         [Test]
