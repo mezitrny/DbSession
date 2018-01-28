@@ -1,4 +1,5 @@
 # DbSession.Core
+[![NuGet](https://img.shields.io/nuget/v/MeziTrny.DbSession.Core.svg)](https://www.nuget.org/packages/MeziTrny.DbSession.Core/)
 ADO wrapper SQL database session
 
 ## DbSession
@@ -25,3 +26,4 @@ Fetched row data wrapper
 SQL parameter wrapper
 
 # DbSession.Sqlite
+[![NuGet](https://img.shields.io/nuget/v/MeziTrny.DbSession.Sqlite.svg)](https://www.nuget.org/packages/MeziTrny.DbSession.Sqlite/)
