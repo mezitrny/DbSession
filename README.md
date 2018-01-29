@@ -26,19 +26,19 @@ Fetched row data wrapper used to get rid of DataReader.
 SQL parameter wrapper used to isolate concrete provider classes. It expects name, C# type and value
 
 ```C#
-var parameter = new DbParameter("Id", typeof(int), 5)<br/>
-  // there is other way of creating parameter instance<br/>
-var otherParameter = new DbParameter<int>("Id", 5)<br/>
+var parameter = new DbParameter("Id", typeof(int), 5)
+  // there is other way of creating parameter instance
+var otherParameter = new DbParameter<int>("Id", 5)
 ```
 
 They are commonly aggregated to sets - any parameter set must contain parameter for each placeholder (e.g. parameter with name "Something" if there is placeholder "@Something" in a SQL script).
 
 ```C#
-var parameterSet = new DbParameterSet<br/>
-{<br/>
-  new SqlParameter<string>("Name", "Max"),<br/>
-  new SqlParameter<string>("Surname", "Example"),<br/>
-  new SqlParameter<int>("Age", 24)<br/>
+var parameterSet = new DbParameterSet
+{
+  new SqlParameter<string>("Name", "Max"),
+  new SqlParameter<string>("Surname", "Example"),
+  new SqlParameter<int>("Age", 24)
 }
 ```
 
@@ -60,6 +60,6 @@ var parameterSetBatch = new DbParameterSet[]
     new SqlParameter<int>("Age", 24)
   }
 }
-```C#
+```
 
 # DbSession.Sqlite [![NuGet](https://img.shields.io/nuget/v/MeziTrny.DbSession.Sqlite.svg)](https://www.nuget.org/packages/MeziTrny.DbSession.Sqlite/)
