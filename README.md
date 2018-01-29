@@ -26,19 +26,19 @@ Fetched row data wrapper used to get rid of DataReader.
 SQL parameter wrapper used to isolate concrete provider classes. It expects name, C# type and value
 
 <code>
-var parameter = new DbParameter("Id", typeof(int), 5)
-  // there is other way of creating parameter instance
-var otherParameter = new DbParameter<int>("Id", 5)
+var parameter = new DbParameter("Id", typeof(int), 5)  
+  // there is other way of creating parameter instance  
+var otherParameter = new DbParameter<int>("Id", 5)  
 </code>
 
 They are commonly aggregated to sets - any parameter set must contain parameter for each placeholder (e.g. parameter with name "Something" if there is placeholder "@Something" in a SQL script).
 
 <code>
 var parameterSet = new DbParameterSet
-{
-  new SqlParameter<string>("Name", "Max"), 
-  new SqlParameter<string>("Surname", "Example"), 
-  new SqlParameter<int>("Age", 24)
+{  
+  new SqlParameter<string>("Name", "Max"),  
+  new SqlParameter<string>("Surname", "Example"),  
+  new SqlParameter<int>("Age", 24)  
 }
 </code>
 
