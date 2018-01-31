@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
-using DbSession.Connections;
-using DbSession.Parameters;
-using DbSession.ValueSets;
+using RoseByte.AdoSession.Interfaces;
+using RoseByte.AdoSession.Internals;
 
-namespace Mezitrny.DbSession.Sqlite.Internals
+namespace RoseByte.AdoSession.Sqlite
 {
     public class SqliteConnection : IConnection
     {
@@ -20,7 +19,7 @@ namespace Mezitrny.DbSession.Sqlite.Internals
             _connection = new SQLiteConnection(connectionString);
         }
 
-        public void ExecuteBatchOnTransaction(string sql, IEnumerable<DbParameterSet> parameterSets)
+        public void ExecuteBatchOnTransaction(string sql, IEnumerable<ParameterSet> parameterSets)
         {
             if (parameterSets == null)
             {
@@ -56,7 +55,7 @@ namespace Mezitrny.DbSession.Sqlite.Internals
             enumerator.Dispose();
         }
 
-        public void ExecuteOnTransaction(string sql, DbParameterSet parameters = null)
+        public void ExecuteOnTransaction(string sql, ParameterSet parameters = null)
         {
             lock (_lock)
             {
@@ -76,7 +75,7 @@ namespace Mezitrny.DbSession.Sqlite.Internals
             }
         }
 
-        public void ExecuteBatch(string sql, IEnumerable<DbParameterSet> parameterSets)
+        public void ExecuteBatch(string sql, IEnumerable<ParameterSet> parameterSets)
         {
             if (parameterSets == null)
             {
@@ -124,7 +123,7 @@ namespace Mezitrny.DbSession.Sqlite.Internals
             }
         }
 
-        public IEnumerable<IValueSet> Select(string sql, DbParameterSet parameters = null)
+        public IEnumerable<IValueSet> Select(string sql, ParameterSet parameters = null)
         {
             EnsureOpen();
             var reader = PrepareCommand(_connection, sql, parameters).ExecuteReader();
@@ -134,14 +133,14 @@ namespace Mezitrny.DbSession.Sqlite.Internals
             }
         }
 
-        public object GetScalar(string sql, DbParameterSet parameters = null)
+        public object GetScalar(string sql, ParameterSet parameters = null)
         {
             EnsureOpen();
             return PrepareCommand(_connection, sql, parameters)
                 .ExecuteScalar();
         }
 
-        public void Execute(string sql, DbParameterSet parameters = null)
+        public void Execute(string sql, ParameterSet parameters = null)
         {
             EnsureOpen();
             PrepareCommand(_connection, sql, parameters)
@@ -180,7 +179,7 @@ namespace Mezitrny.DbSession.Sqlite.Internals
             }
         }
 
-        private static SQLiteCommand PrepareCommand(SQLiteConnection connection, string sql, DbParameterSet parameters, SQLiteTransaction transaction = null)
+        private static SQLiteCommand PrepareCommand(SQLiteConnection connection, string sql, ParameterSet parameters, SQLiteTransaction transaction = null)
         {
             var command = connection.CreateCommand();
             command.CommandType = CommandType.Text;
@@ -225,7 +224,7 @@ namespace Mezitrny.DbSession.Sqlite.Internals
             {typeof(object), DbType.Object }
         };
 
-        private static SQLiteCommand ReuseCommand(SQLiteCommand command, DbParameterSet parameters)
+        private static SQLiteCommand ReuseCommand(SQLiteCommand command, ParameterSet parameters)
         {
             if (parameters == null)
             {

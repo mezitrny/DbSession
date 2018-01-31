@@ -1,9 +1,8 @@
 ﻿using System.Data.SQLite;
 using System.Linq;
-using DbSession.Parameters;
 using NUnit.Framework;
 
-namespace Mezitrny.DbSession.Sqlite.Tests
+namespace RoseByte.AdoSession.Sqlite.Tests
 {
     [TestFixture]
     public class SqliteSessionTests
@@ -14,10 +13,11 @@ namespace Mezitrny.DbSession.Sqlite.Tests
             using (var connection = new SQLiteConnection("Data Source=TestDatabase.sqlite"))
             {
                 var command = connection.CreateCommand();
-                command.CommandText = "CREATE TABLE IF NOT EXISTS TestTable(Id INT PRIMARY KEY, TestValue INT);\r\n" +
-                                      "DELETE FROM TestTable;\r\n" +
-                                      "INSERT INTO TestTable VALUES (1, 5);\r\n" +
-                                      "INSERT INTO TestTable VALUES (2, 6);\r\n";
+                command.CommandText = "DROP TABLE IF EXISTS SqliteTestTableTwo;\r\n" +
+                                      "CREATE TABLE IF NOT EXISTS SqliteTestTableTwo(Id INT PRIMARY KEY, TestValue INT);\r\n" +
+                                      "DELETE FROM SqliteTestTableTwo;\r\n" +
+                                      "INSERT INTO SqliteTestTableTwo VALUES (1, 5);\r\n" +
+                                      "INSERT INTO SqliteTestTableTwo VALUES (2, 6);\r\n";
                 connection.Open();
                 command.ExecuteNonQuery();
             }
@@ -28,8 +28,8 @@ namespace Mezitrny.DbSession.Sqlite.Tests
         {
             var sut = new SqliteSession("Data Source=TestDatabase.sqlite");
             var result = sut.Select(
-                "SELECT * FROM TestTable WHERE Id IN (@Id1, @Id2)",
-                new DbParameterSet { new DbParameter<int>("Id1", 1), new DbParameter<int>("Id2", 2) }).ToList();
+                "SELECT * FROM SqliteTestTableTwo WHERE Id IN (@Id1, @Id2)",
+                new ParameterSet { new Parameter<int>("Id1", 1), new Parameter<int>("Id2", 2) }).ToList();
 
             Assert.That(result.Count, Is.EqualTo(2));
             Assert.That(result[0]["Id"], Is.EqualTo(1));
@@ -43,12 +43,12 @@ namespace Mezitrny.DbSession.Sqlite.Tests
         {
             var sut = new SqliteSession("Data Source=TestDatabase.sqlite");
 
-            sut.Execute("INSERT INTO TestTable VALUES(5, @Value)", new DbParameterSet { new DbParameter<int>("Value", 7) });
+            sut.Execute("INSERT INTO SqliteTestTableTwo VALUES(5, @Value)", new ParameterSet { new Parameter<int>("Value", 7) });
 
             using (var connection = new SQLiteConnection("Data Source=TestDatabase.sqlite"))
             {
                 var command = connection.CreateCommand();
-                command.CommandText = "SELECT TestValue FROM TestTable WHERE Id = 5";
+                command.CommandText = "SELECT TestValue FROM SqliteTestTableTwo WHERE Id = 5";
                 connection.Open();
                 var result = int.Parse(command.ExecuteScalar().ToString());
 

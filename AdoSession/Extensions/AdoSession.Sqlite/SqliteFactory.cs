@@ -1,6 +1,6 @@
-﻿using DbSession.Connections;
+﻿using RoseByte.AdoSession.Internals;
 
-namespace Mezitrny.DbSession.Sqlite.Internals
+namespace RoseByte.AdoSession.Sqlite
 {
     internal class SqliteFactory : IConnectionFactory
     {

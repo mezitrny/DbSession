@@ -1,8 +1,6 @@
-﻿using DbSession;
-using DbSession.Connections;
-using Mezitrny.DbSession.Sqlite.Internals;
+﻿using RoseByte.AdoSession.Internals;
 
-namespace Mezitrny.DbSession.Sqlite
+namespace RoseByte.AdoSession.Sqlite
 {
     public class SqliteSession : Session
     {

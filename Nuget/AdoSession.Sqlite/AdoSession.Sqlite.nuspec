@@ -16,10 +16,10 @@
     <tags>ADO Database SQL Sqlite</tags>
     <dependencies>
         <dependency id="RoseByte.AdoSession" version="1.3.0"/>
-        <dependency id="System.Data.SQLite.Core" version="1.0.106"/>
+        <dependency id="System.Data.SQLite.Core" version="1.0.107"/>
     </dependencies>
   </metadata>
   <files>
-    <file src="..\..\AdoSession\AdoSession.Sqlite\bin\Release\RoseByte.AdoSession.Sqlite.dll" target="lib\net40\" />
+    <file src="..\..\AdoSession\Extensions\AdoSession.Sqlite\bin\Release\RoseByte.AdoSession.Sqlite.dll" target="lib\net40\" />
   </files>
 </package>
