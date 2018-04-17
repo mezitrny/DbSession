@@ -1,7 +1,7 @@
-﻿using System.Data.SqlClient;
+﻿using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using NUnit.Framework;
-using RoseByte.AdoSession.Internals;
 using RoseByte.AdoSession.SqlServer;
 
 namespace RoseByte.AdoSession.Tests
@@ -21,6 +21,14 @@ namespace RoseByte.AdoSession.Tests
                                       "INSERT INTO TestTable VALUES (1, 5)\r\n" +
                                       "INSERT INTO TestTable VALUES (2, 6)\r\n";
                 connection.Open();
+                command.ExecuteNonQuery();
+                command.CommandText = "IF  EXISTS " +
+                                      "  (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TestProc]') " +
+                                      "  AND type in (N'P', N'PC')) " +
+                                      "DROP PROCEDURE [dbo].[TestProc]";
+                command.ExecuteNonQuery();
+                command.CommandText = "CREATE PROCEDURE dbo.TestProc @ParOne INT, @ParTwo INT AS BEGIN \r\n" +
+                                      "INSERT INTO TestTable VALUES (@ParOne, @ParTwo) \r\n END";
                 command.ExecuteNonQuery();
             }
         }
@@ -53,6 +61,29 @@ namespace RoseByte.AdoSession.Tests
                 var result = int.Parse(command.ExecuteScalar().ToString());
 
                 Assert.That(result, Is.EqualTo(7));
+            }
+        }
+        
+        [Test]
+        public void ShouldExecuteProcedureOnTransaction()
+        {
+            var sut = new SqlServerConnection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;");
+
+            sut.ExecuteOnTransaction(
+                "dbo.TestProc", 
+                new ParameterSet{new Parameter<int>("ParOne", 100), new Parameter<int>("ParTwo", 101)}, 
+                CommandType.StoredProcedure);
+            
+            sut.Commit();
+
+            using (var connection = new SqlConnection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT TestValue FROM TestTable WHERE Id = 100";
+                connection.Open();
+                var result = int.Parse(command.ExecuteScalar().ToString());
+
+                Assert.That(result, Is.EqualTo(101));
             }
         }
 

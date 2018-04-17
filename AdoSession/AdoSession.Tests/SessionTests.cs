@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.IO;
 using Moq;
 using NUnit.Framework;
@@ -33,7 +34,7 @@ namespace RoseByte.AdoSession.Tests
             var sut = new Session(factory.Object, "A");
             sut.Execute("A");
 
-            connection.Verify(x => x.Execute("A", null));
+            connection.Verify(x => x.Execute("A", null, CommandType.Text));
         }
 
         [Test]
@@ -47,7 +48,7 @@ namespace RoseByte.AdoSession.Tests
             var sut = new Session(factory.Object, "A");
             sut.ExecuteBatch("A", parameterSet);
 
-            connection.Verify(x => x.ExecuteBatch("A", parameterSet));
+            connection.Verify(x => x.ExecuteBatch("A", parameterSet, CommandType.Text));
         }
 
         [Test]
@@ -60,7 +61,7 @@ namespace RoseByte.AdoSession.Tests
             var sut = new Session(factory.Object, "A");
             sut.ExecuteOnTransaction("A");
 
-            connection.Verify(x => x.ExecuteOnTransaction("A", null));
+            connection.Verify(x => x.ExecuteOnTransaction("A", null, CommandType.Text));
         }
 
         [Test]
@@ -74,7 +75,7 @@ namespace RoseByte.AdoSession.Tests
             var sut = new Session(factory.Object, "A");
             sut.ExecuteBatchOnTransaction("A", parameterSet);
 
-            connection.Verify(x => x.ExecuteBatchOnTransaction("A", parameterSet));
+            connection.Verify(x => x.ExecuteBatchOnTransaction("A", parameterSet, CommandType.Text));
         }
 
         [Test]
@@ -144,7 +145,7 @@ namespace RoseByte.AdoSession.Tests
             sut.Execute("A");
             sut.CloseConnection();
 
-            connection.Verify(x => x.Execute("A", null));
+            connection.Verify(x => x.Execute("A", null, CommandType.Text));
             connection.Verify(x => x.Dispose(), Times.Once);
         }
 

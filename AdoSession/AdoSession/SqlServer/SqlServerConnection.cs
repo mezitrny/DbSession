@@ -19,7 +19,8 @@ namespace RoseByte.AdoSession.SqlServer
             _connection = new SqlConnection(connectionString);
         }
 
-        public void ExecuteOnTransaction(string sql, ParameterSet parameters = null)
+        public void ExecuteOnTransaction(string sql, ParameterSet parameters = null, 
+            CommandType commandType = CommandType.Text)
         {
             lock (_lock)
             {
@@ -34,12 +35,13 @@ namespace RoseByte.AdoSession.SqlServer
                     _transaction.Connection.Open();
                 }
 
-                PrepareCommand(_transaction.Connection, sql, parameters, _transaction)
+                PrepareCommand(_transaction.Connection, sql, parameters, _transaction, commandType)
                     .ExecuteNonQuery();
             }
         }
-
-        public void ExecuteBatchOnTransaction(string sql, IEnumerable<ParameterSet> parameterSets)
+        
+        public void ExecuteBatchOnTransaction(string sql, IEnumerable<ParameterSet> parameterSets, 
+            CommandType commandType = CommandType.Text)
         {
             if (parameterSets == null)
             {
@@ -64,7 +66,7 @@ namespace RoseByte.AdoSession.SqlServer
 
             EnsureOpen();
 
-            var command = PrepareCommand(_connection, sql, enumerator.Current, _transaction);
+            var command = PrepareCommand(_connection, sql, enumerator.Current, _transaction, commandType);
             command.ExecuteNonQuery();
 
             while (enumerator.MoveNext())
@@ -98,7 +100,7 @@ namespace RoseByte.AdoSession.SqlServer
         public IEnumerable<IValueSet> Select(string sql, ParameterSet parameters = null)
         {
             EnsureOpen();
-            var reader = PrepareCommand(_connection, sql, parameters).ExecuteReader();
+            var reader = PrepareCommand(_connection, sql, parameters, null, CommandType.Text).ExecuteReader();
             while (reader.Read())
             {
                 yield return new ValueSet(reader);
@@ -110,18 +112,18 @@ namespace RoseByte.AdoSession.SqlServer
         public object GetScalar(string sql, ParameterSet parameters = null)
         {
             EnsureOpen();
-            return PrepareCommand(_connection, sql, parameters)
+            return PrepareCommand(_connection, sql, parameters, null, CommandType.Text)
                 .ExecuteScalar();
         }
 
-        public void Execute(string sql, ParameterSet parameters = null)
+        public void Execute(string sql, ParameterSet parameters = null, CommandType commandType = CommandType.Text)
         {
             EnsureOpen();
-            PrepareCommand(_connection, sql, parameters)
+            PrepareCommand(_connection, sql, parameters, null, commandType)
                 .ExecuteNonQuery();
         }
 
-        public void ExecuteBatch(string sql, IEnumerable<ParameterSet> parameterSets)
+        public void ExecuteBatch(string sql, IEnumerable<ParameterSet> parameterSets, CommandType commandType = CommandType.Text)
         {
             if (parameterSets == null)
             {
@@ -137,7 +139,7 @@ namespace RoseByte.AdoSession.SqlServer
 
             EnsureOpen();
             var transaction = _connection.BeginTransaction();
-            var command = PrepareCommand(_connection, sql, enumerator.Current, transaction);
+            var command = PrepareCommand(_connection, sql, enumerator.Current, transaction, commandType);
             command.ExecuteNonQuery();
 
             while (enumerator.MoveNext())
@@ -196,10 +198,11 @@ namespace RoseByte.AdoSession.SqlServer
             return command;
         }
 
-        private static SqlCommand PrepareCommand(SqlConnection connection, string sql, ParameterSet parameters, SqlTransaction transaction = null)
+        private static SqlCommand PrepareCommand(SqlConnection connection, string sql, ParameterSet parameters, 
+            SqlTransaction transaction, CommandType commandType)
         {
             var command = connection.CreateCommand();
-            command.CommandType = CommandType.Text;
+            command.CommandType = commandType;
             if (transaction != null)
             {
                 command.Transaction = transaction;

@@ -63,6 +63,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SessionTests.cs" />
     <Compile Include="ParameterTests.cs" />
+    <Compile Include="SqlServerSessionTests.cs" />
     <Compile Include="Sql\TestResource.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

@@ -1,7 +1,7 @@
 Push-Location -Path ".\AdoSession"
-nuget pack AdoSession.nuspec
+..\nuget.exe pack AdoSession.nuspec
 Pop-Location
 
 Push-Location -Path ".\AdoSession.Sqlite"
-nuget pack AdoSession.Sqlite.nuspec
+..\nuget.exe pack AdoSession.Sqlite.nuspec
 Pop-Location
