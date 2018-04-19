@@ -11,7 +11,7 @@ using RoseByte.AdoSession.Internals;
 
 namespace RoseByte.AdoSession
 {
-    public class SqlServerSession : Session, ISession
+    public class SqlServerSession : Session, ISqlServerSession
     {
         private readonly string _connectionString;
         private readonly IConnectionFactory _factory; 
