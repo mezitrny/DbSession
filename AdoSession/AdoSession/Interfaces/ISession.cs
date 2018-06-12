@@ -96,5 +96,15 @@ namespace RoseByte.AdoSession.Interfaces
         /// <param name="path">path to file</param>
         /// <returns>string</returns>
         string ReadFile(string path);
+        
+        /// <summary>
+        /// Returns session database's name
+        /// </summary>
+        string Database { get; }
+        
+        /// <summary>
+        /// Returns session servers's name
+        /// </summary>
+        string Server { get; }
     }
 }

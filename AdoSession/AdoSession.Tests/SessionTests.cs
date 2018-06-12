@@ -23,6 +23,14 @@ namespace RoseByte.AdoSession.Tests
 
             factory.Verify(x => x.Create("A"));
         }
+        
+        [Test]
+        public void ShouldParseDatabaseAndServer()
+        {
+            var sut = new Session("Data Source=myHost;Initial Catalog=myBase;Integrated Security=True");
+            Assert.That(sut.Database, Is.EqualTo("myBase"));
+            Assert.That(sut.Server, Is.EqualTo("myHost"));
+        }
 
         [Test]
         public void ShouldExecute()

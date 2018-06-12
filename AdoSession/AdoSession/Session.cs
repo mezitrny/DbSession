@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,7 +16,41 @@ namespace RoseByte.AdoSession
         private readonly IConnectionFactory _factory; 
         private IConnection _connection;
         private IConnection Connection => _connection ?? (_connection = _factory.Create(_connectionString));
+        private string _database;
+        private string _server;
+        
+        
+        /// <summary>
+        /// Returns session database's name
+        /// </summary>
+        public virtual string Database {
+            get
+            {
+                if (_database == null)
+                {
+                    ParseConnectionString();
+                }
 
+                return _database;
+            }
+            
+        }
+        
+        /// <summary>
+        /// Returns session servers's name
+        /// </summary>
+        public virtual string Server {
+            get
+            {
+                if (_server == null)
+                {
+                    ParseConnectionString();
+                }
+
+                return _server;
+            } 
+        }
+        
         /// <summary>
         /// Returns ValueSet for each row fetched by given SQL script
         /// </summary>
@@ -195,7 +230,12 @@ namespace RoseByte.AdoSession
             CloseConnection();
         }
 
-
+        private void ParseConnectionString()
+        {
+            var csb = new DbConnectionStringBuilder { ConnectionString = _connectionString };
+            _database = csb["Initial Catalog"].ToString();
+            _server = csb["Data Source"].ToString();
+        }
 
     }
 }
