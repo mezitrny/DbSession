@@ -59,6 +59,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ParameterSetTests.cs" />
     <Compile Include="SqlServerConnectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SessionTests.cs" />
