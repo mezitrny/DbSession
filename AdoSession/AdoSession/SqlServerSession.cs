@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
@@ -17,6 +18,16 @@ namespace RoseByte.AdoSession
         private readonly IConnectionFactory _factory; 
         private IConnection _connection;
         private IConnection Connection => _connection ?? (_connection = _factory.Create(_connectionString));
+
+        protected override (string, string) ParseConnectionString()
+        {
+            var csb = new SqlConnectionStringBuilder
+            {
+                ConnectionString = _connectionString
+            };
+            
+            return (csb.InitialCatalog, csb.DataSource);
+        }
 
         /// <summary>
         /// Executes given stored procedure

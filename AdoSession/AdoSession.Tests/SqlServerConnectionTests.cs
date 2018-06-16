@@ -195,12 +195,14 @@ namespace RoseByte.AdoSession.Tests
         {
             var sut = new SqlServerConnection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;");
 
-            sut.Execute("INSERT INTO TestTable VALUES(5, @Value)", new ParameterSet { new Parameter<int>("Value", 7) });
+            sut.Execute(
+                "INSERT INTO TestTable VALUES(5555, @Value)", 
+                new ParameterSet { new Parameter<int>("Value", 7) });
 
             using (var connection = new SqlConnection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;"))
             {
                 var command = connection.CreateCommand();
-                command.CommandText = "SELECT TestValue FROM TestTable WHERE Id = 5";
+                command.CommandText = "SELECT TestValue FROM TestTable WHERE Id = 5555";
                 connection.Open();
                 var result = int.Parse(command.ExecuteScalar().ToString());
 
@@ -221,7 +223,7 @@ namespace RoseByte.AdoSession.Tests
         {
             var sut = new SqlServerConnection("Data Source=.;Initial Catalog=DbSessionTests;Integrated Security=True;");
 
-            Assert.That(sut.GetScalar("SELECT TestValue FROM TestTable WHERE Id = 100"), Is.Null);
+            Assert.That(sut.GetScalar("SELECT TestValue FROM TestTable WHERE Id = 10000"), Is.Null);
         }
     }
 }

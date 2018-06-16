@@ -28,7 +28,7 @@ namespace RoseByte.AdoSession
             {
                 if (_database == null)
                 {
-                    ParseConnectionString();
+                    (_database, _server) = ParseConnectionString();
                 }
 
                 return _database;
@@ -44,7 +44,7 @@ namespace RoseByte.AdoSession
             {
                 if (_server == null)
                 {
-                    ParseConnectionString();
+                    (_database, _server) = ParseConnectionString();
                 }
 
                 return _server;
@@ -230,11 +230,10 @@ namespace RoseByte.AdoSession
             CloseConnection();
         }
 
-        private void ParseConnectionString()
+        protected virtual (string, string) ParseConnectionString()
         {
             var csb = new DbConnectionStringBuilder { ConnectionString = _connectionString };
-            _database = csb["Initial Catalog"].ToString();
-            _server = csb["Data Source"].ToString();
+            return (csb["Initial Catalog"].ToString(), csb["Data Source"].ToString());
         }
 
     }

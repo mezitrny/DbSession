@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>RoseByte.AdoSession</id>
-    <version>1.4.2</version>
+    <version>1.5.1</version>
     <title>AdoSession</title>
     <authors>Jaroslav Ruzicka</authors>
     <owners>Jaroslav Ruzicka</owners>
@@ -11,7 +11,7 @@
     <iconUrl>https://png.icons8.com/ios/50/000000/database-filled.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Wrapper for ADO SqlServer provider to ease database access.</description>
-    <releaseNotes>Initial package with first beta version.</releaseNotes>
+    <releaseNotes>Database and server name added to Session. ParameterSet can be constructed with IEnumerable of IParameter objects.</releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>ADO Database SQL SqlServer</tags>
     <frameworkAssemblies>

@@ -50,6 +50,14 @@ namespace RoseByte.AdoSession.Tests
 
             connection.Verify(x => x.ExecuteOnTransaction("A", null, CommandType.StoredProcedure));
         }
+        
+        [Test]
+        public void ShouldParseDatabaseAndServer()
+        {
+            var sut = new SqlServerSession("Data Source=myHost;Initial Catalog=myBase;Integrated Security=True");
+            Assert.That(sut.Database, Is.EqualTo("myBase"));
+            Assert.That(sut.Server, Is.EqualTo("myHost"));
+        }
 
         [Test]
         public void ShouldExecuteProcedureBatchOnTransaction()
