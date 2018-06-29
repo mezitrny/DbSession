@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -67,9 +68,10 @@ namespace RoseByte.AdoSession
         /// </summary>
         /// <param name="sql">SQL script</param>
         /// <param name="parameters">parameters for script</param>
-        public void Execute(string sql, ParameterSet parameters = null)
+        /// <param name="timeout">command timeout in seconds and zero for infinity</param>
+        public void Execute(string sql, ParameterSet parameters = null, int timeout = 0)
         {
-            Connection.Execute(sql, parameters);
+            Connection.Execute(sql, parameters, CommandType.Text, timeout);
         }
 
         /// <summary>

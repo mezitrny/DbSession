@@ -116,10 +116,10 @@ namespace RoseByte.AdoSession.SqlServer
                 .ExecuteScalar();
         }
 
-        public void Execute(string sql, ParameterSet parameters = null, CommandType commandType = CommandType.Text)
+        public void Execute(string sql, ParameterSet parameters = null, CommandType commandType = CommandType.Text, int timeout = 0)
         {
             EnsureOpen();
-            PrepareCommand(_connection, sql, parameters, null, commandType)
+            PrepareCommand(_connection, sql, parameters, null, commandType, timeout)
                 .ExecuteNonQuery();
         }
 
@@ -199,7 +199,7 @@ namespace RoseByte.AdoSession.SqlServer
         }
 
         private static SqlCommand PrepareCommand(SqlConnection connection, string sql, ParameterSet parameters, 
-            SqlTransaction transaction, CommandType commandType)
+            SqlTransaction transaction, CommandType commandType, int timeout = 0)
         {
             var command = connection.CreateCommand();
             command.CommandType = commandType;
@@ -208,6 +208,7 @@ namespace RoseByte.AdoSession.SqlServer
                 command.Transaction = transaction;
             }
             command.CommandText = sql;
+            command.CommandTimeout = timeout;
 
             if (parameters != null)
             {

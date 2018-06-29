@@ -18,7 +18,8 @@ namespace RoseByte.AdoSession.Interfaces
         /// </summary>
         /// <param name="sql">SQL script</param>
         /// <param name="parameters">parameters for script</param>
-        void Execute(string sql, ParameterSet parameters = null);
+        /// <param name="timeout">command timeout in seconds and zero for infinity</param>
+        void Execute(string sql, ParameterSet parameters = null, int timeout = 0);
 
         /// <summary>
         /// Executes given SQL script with multiple parameter sets as a batch

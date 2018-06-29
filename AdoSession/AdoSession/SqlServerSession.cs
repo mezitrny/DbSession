@@ -34,9 +34,10 @@ namespace RoseByte.AdoSession
         /// </summary>
         /// <param name="name">Stored procedure name</param>
         /// <param name="parameters">parameters for stored procedure</param>
-        public void ExecuteProcedure(string name, ParameterSet parameters = null)
+        /// <param name="timeout">command timeout in seconds and zero for infinity</param>
+        public void ExecuteProcedure(string name, ParameterSet parameters = null, int timeout = 0)
         {
-            Connection.Execute(name, parameters, CommandType.StoredProcedure);
+            Connection.Execute(name, parameters, CommandType.StoredProcedure, timeout);
         }
 
         /// <summary>

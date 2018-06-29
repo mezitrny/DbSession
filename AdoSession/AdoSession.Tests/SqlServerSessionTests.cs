@@ -21,7 +21,7 @@ namespace RoseByte.AdoSession.Tests
             var sut = new SqlServerSession(factory.Object, "A");
             sut.ExecuteProcedure("A");
 
-            connection.Verify(x => x.Execute("A", null, CommandType.StoredProcedure));
+            connection.Verify(x => x.Execute("A", null, CommandType.StoredProcedure, 0));
         }
 
         [Test]
