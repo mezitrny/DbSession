@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>RoseByte.AdoSession</id>
-    <version>1.5.1</version>
+    <version>1.7.0</version>
     <title>AdoSession</title>
     <authors>Jaroslav Ruzicka</authors>
     <owners>Jaroslav Ruzicka</owners>

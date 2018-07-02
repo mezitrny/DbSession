@@ -47,7 +47,7 @@ namespace RoseByte.AdoSession.Sqlite.Tests
         {
             var sut = new SqliteConnection("Data Source=TestDatabase.sqlite");
 
-            sut.ExecuteOnTransaction("INSERT INTO TestTable VALUES(4, @Value)", new ParameterSet { new Parameter<int>("Value", 7) });
+            sut.ExecuteOnTransaction("INSERT INTO SqliteTestTableOne VALUES(4, @Value)", new ParameterSet { new Parameter<int>("Value", 7) });
             sut.RollBack();
 
             using (var connection = new SQLiteConnection("Data Source=TestDatabase.sqlite"))
