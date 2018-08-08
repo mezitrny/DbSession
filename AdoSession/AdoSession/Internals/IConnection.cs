@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using RoseByte.AdoSession.Interfaces;
 
 namespace RoseByte.AdoSession.Internals
@@ -15,5 +16,7 @@ namespace RoseByte.AdoSession.Internals
         object GetScalar(string sql, ParameterSet parameters = null);
         void Commit();
         void RollBack();
+        event EventHandler<SqlInfoMessageEventArgs> MessageReceived;
+        bool FireInfoMessageEventOnUserErrors { get; set; }
     }
 }

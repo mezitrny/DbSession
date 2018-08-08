@@ -14,9 +14,22 @@ namespace RoseByte.AdoSession.SqlServer
         private SqlTransaction _transaction;
         private bool _isDisposed;
 
+        public bool FireInfoMessageEventOnUserErrors
+        {
+            get => _connection?.FireInfoMessageEventOnUserErrors ?? false;
+            set 
+            {
+                EnsureOpen();
+                _connection.FireInfoMessageEventOnUserErrors = value;
+            }
+        }
+        
+        public event EventHandler<SqlInfoMessageEventArgs> MessageReceived;
+
         public SqlServerConnection(string connectionString)
         {
             _connection = new SqlConnection(connectionString);
+            _connection.InfoMessage += (x, y) => MessageReceived?.Invoke(x, y);
         }
 
         public void ExecuteOnTransaction(string sql, ParameterSet parameters = null, 
@@ -122,7 +135,7 @@ namespace RoseByte.AdoSession.SqlServer
             PrepareCommand(_connection, sql, parameters, null, commandType, timeout)
                 .ExecuteNonQuery();
         }
-
+        
         public void ExecuteBatch(string sql, IEnumerable<ParameterSet> parameterSets, CommandType commandType = CommandType.Text)
         {
             if (parameterSets == null)

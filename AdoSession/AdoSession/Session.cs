@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,11 +17,59 @@ namespace RoseByte.AdoSession
         private readonly string _connectionString;
         private readonly IConnectionFactory _factory; 
         private IConnection _connection;
-        private IConnection Connection => _connection ?? (_connection = _factory.Create(_connectionString));
+        private IConnection Connection
+        {
+            get
+            {
+                if (_connection == null)
+                {
+                    _connection = _factory.Create(_connectionString);
+                    _connection.MessageReceived += OnMessageReceived;
+                    _delegates.Add(OnMessageReceived);
+                }
+
+                return _connection;
+            }
+        }
         private string _database;
         private string _server;
         
+        /// <summary>
+        /// Messages sent by SQL server.
+        /// </summary>
+        public event Action<string> MessageReceived;
         
+        /// <summary>
+        /// Errors sent by SQL server.
+        /// </summary>
+        public event Action<string> ErrorReceived;
+        
+        /// <summary>
+        /// Toggles between message and error sending. Set to false by every Close().
+        /// </summary>
+        public bool FireInfoMessageEventOnUserErrors
+        {
+            get => Connection.FireInfoMessageEventOnUserErrors;
+            set => Connection.FireInfoMessageEventOnUserErrors = value;
+        }
+
+        private void OnMessageReceived(object sender, SqlInfoMessageEventArgs args)
+        {
+            foreach (SqlError error in args.Errors)
+            {
+                if (error.Class > 10)
+                {
+                    ErrorReceived?.Invoke(error.Message);
+                }
+                else
+                {
+                    MessageReceived?.Invoke(args.Message);
+                }
+            }
+        }
+
+        private readonly List<EventHandler<SqlInfoMessageEventArgs>> _delegates;
+
         /// <summary>
         /// Returns session database's name
         /// </summary>
@@ -150,6 +199,11 @@ namespace RoseByte.AdoSession
         /// </summary>
         public void CloseConnection()
         {
+            foreach (var deleg in _delegates)
+            {
+                _connection.MessageReceived -= deleg;
+            }
+            
             _connection?.Dispose();
             _connection = null;
         }
@@ -225,6 +279,7 @@ namespace RoseByte.AdoSession
         {
             _factory = factory;
             _connectionString = connectionString;
+            _delegates = new List<EventHandler<SqlInfoMessageEventArgs>>();
         }
 
         public void Dispose()

@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using Moq;
 using NUnit.Framework;
 using RoseByte.AdoSession.Interfaces;
 using RoseByte.AdoSession.Internals;
+using RoseByte.AdoSession.SqlServer;
 
 namespace RoseByte.AdoSession.Tests
 {
@@ -22,6 +25,18 @@ namespace RoseByte.AdoSession.Tests
             sut.Execute("A");
 
             factory.Verify(x => x.Create("A"));
+        }
+        
+        [Test]
+        public void ShouldEmitErrorMessage()
+        {
+            var messages = new List<string>();
+            var sut = new Session("Data Source=.;Initial Catalog=TestDatabase;Integrated Security=True");
+            sut.MessageReceived += messages.Add;
+
+            sut.Execute("PRINT 'Hi there'");
+            
+            Assert.That(messages.SingleOrDefault() == "Hi there");
         }
         
         [Test]

@@ -6,6 +6,21 @@ namespace RoseByte.AdoSession.Interfaces
     public interface ISession : IDisposable
     {
         /// <summary>
+        /// Messages sent by SQL server.
+        /// </summary>
+        event Action<string> MessageReceived;
+        
+        /// <summary>
+        /// Errors sent by SQL server.
+        /// </summary>
+        event Action<string> ErrorReceived;
+        
+        /// <summary>
+        /// Toggles between sending messages or errors.
+        /// </summary>
+        bool FireInfoMessageEventOnUserErrors { get; set; }
+        
+        /// <summary>
         /// Returns ValueSet for each row fetched by given SQL script
         /// </summary>
         /// <param name="sql">sql command fetching rows</param>

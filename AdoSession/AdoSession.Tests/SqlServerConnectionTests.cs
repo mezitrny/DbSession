@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using NUnit.Framework;
@@ -188,6 +190,22 @@ namespace RoseByte.AdoSession.Tests
 
                 Assert.That(result, Is.EqualTo(80));
             }
+        }
+
+        [Test]
+        public void ShouldEmitErrorMessage()
+        {
+            var messages = new List<string>();
+            var sut = new SqlServerConnection("Data Source=.;Initial Catalog=TestDatabase;Integrated Security=True;");
+            sut.MessageReceived += (x, y) => messages.Add(y.Message);
+
+            try
+            {
+                sut.Execute("PRINT 'Hi there'");
+            }
+            catch { }
+            
+            Assert.That(messages.SingleOrDefault() == "Hi there");
         }
 
         [Test]
